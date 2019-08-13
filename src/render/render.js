@@ -61,7 +61,7 @@ class Render extends  Webgl{
     }
     toworld(){
         for (let [name, program] of this.programs.entries()) {
-            program.toworld(this.pMatrix,this.vMatrix)
+            program.toworld()
         }
         return this
     }
@@ -82,7 +82,12 @@ class Render extends  Webgl{
         //绑定缓冲
         this.gl.bindBuffer(target,buffer);
         //数据传递到缓冲区
-        this.gl.bufferData(target, new Float32Array(data1d), usage);
+        if(target==this.gl.ARRAY_BUFFER){
+            this.gl.bufferData(target, new Float32Array(data1d), usage);
+        } if (target==this.gl.ELEMENT_ARRAY_BUFFER) {
+            this.gl.bufferData(target, new Int16Array(data1d), usage);
+        }
+
         //取消绑定缓冲区
         this.gl.bindBuffer(target, null);
         return buffer;

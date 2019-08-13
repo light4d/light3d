@@ -5,16 +5,5 @@ import {vec3} from "gl-matrix"
 
 export class Lineloop {
 
-    constructor(data){
-        this.vertex=data
-    }
-    square(a){
-        this.vertex=[];
-        this.vertex.push(vec3.scale([],[1,1,0],a));
-        this.vertex.push(vec3.scale([],[1,-1,0],a));
-        this.vertex.push(vec3.scale([],[-1,-1,0],a));
-        this.vertex.push(vec3.scale([],[-1,1,0],a));
 
-        return  this.vertex
-    }
 }

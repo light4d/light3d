@@ -58,8 +58,9 @@ class Webgl{
     config(){
 
         // Enable the depth test
-        this.gl.enable(this.gl.DEPTH_TEST);
-
+        this.gl.enable( this.gl.DEPTH_TEST);
+        this.gl.depthFunc( this.gl.LEQUAL);
+        this.gl.enable( this.gl.CULL_FACE);
     }
     /*
     如果你重新改变了canvas的大小，你需要告诉WebGL上下文设定新的视口。在这里，你可以使用gl.viewport。
@@ -119,7 +120,7 @@ class Webgl{
     clear(mask=this.gl.COLOR_BUFFER_BIT){
         this.clearColor();
         this.clearDepth();
-        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     }
 
     flush(){

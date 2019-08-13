@@ -39,26 +39,28 @@ class Program {
 
     // 实现对单个program对平移，mvp=p*v*m;所以p*v=mvp*m^(-1)
     translate(t=[0,0,0],p,v){
-
+        this.pv=mat4.multiply(mat4.create(),p,v)
         mat4.translate(this.mMatrix,this.mMatrix,t);
-        this.toworld(p, v)
+        this.toworld()
     }
-
+    initmMatrix(){
+        this.mMatrix=mat4.create();
+    }
     // 实现对单个program对平移，mvp=p*v*m;所以p*v=mvp*m^(-1)
     scale(t=[1,1,1],p, v){
-
+        this.pv=mat4.multiply(mat4.create(),p,v)
         mat4.scale(this.mMatrix,this.mMatrix,t);
-        this.toworld(p, v)
+        this.toworld()
     }
     // 实现对单个program对平移，mvp=p*v*m;所以p*v=mvp*m^(-1)
     rotate(rad, rotationAxis,p,v) {
-
+        this.pv=mat4.multiply(mat4.create(),p,v)
         mat4.rotate(this.mMatrix,this.mMatrix, rad, rotationAxis);
-        this.toworld(p, v)
+        this.toworld()
     }
 
-    toworld(p,v){
-        mat4.multiply(this.mvp,mat4.multiply( mat4.create(), p, v), this.mMatrix);
+    toworld(){
+        mat4.multiply(this.mvp,this.pv, this.mMatrix);
         let uniLocation=this.gl.getUniformLocation(this.program,this.mvp_uniform);
         //将坐标变换矩阵传入uniformLocation，并绘图(第一个模型)
         if(uniLocation==null){
