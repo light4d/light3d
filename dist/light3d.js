@@ -755,9 +755,9 @@ var light3d = (function (exports) {
             }
             return this
         }
-        toworld(){
+        toworld(p=this.pMatrix,v=this.vMatrix){
             for (let [name, program] of this.programs.entries()) {
-                program.toworld();
+                program.toworld(p,v);
             }
             return this
         }
@@ -767,8 +767,14 @@ var light3d = (function (exports) {
            gl.DYNAMIC_DRAW: 缓冲区的内容可能经常被使用，并且经常更改。内容被写入缓冲区，但不被读取。
            gl.STREAM_DRAW: 缓冲区的内容可能不会经常使用。内容被写入缓冲区，但不被读取。
         */
-        data(data2d,target=this.gl.ARRAY_BUFFER,usage= this.gl.STATIC_DRAW){
-            let data1d=[].concat.apply([],data2d);
+        data(data,target=this.gl.ARRAY_BUFFER,usage= this.gl.STATIC_DRAW){
+            let data1d=[];
+            if(typeof data[0].length === "undefined"){
+                data1d=data;
+            }else {
+                data1d=[].concat.apply([],data);
+            }
+
             let buffer = this.gl.createBuffer();
             /*
             target=
@@ -795,9 +801,9 @@ var light3d = (function (exports) {
             this.gl.drawArrays(drawtype, first, count);
             return this
         }
-        drawElements(drawtype=this.gl.LINE_LOOP,count,type,offset){
+        drawElements(drawtype=this.gl.LINE_LOOP,count,type=this.gl.UNSIGNED_SHORT,offset){
             // void gl.drawElements(mode, count, type, offset);
-            this.gl.drawArrays(drawtype, count, type, offset);
+            this.gl.drawElements(drawtype, count, type, offset);
             return this
         }
     }
@@ -913,7 +919,13 @@ var light3d = (function (exports) {
             this.toworld();
         }
 
-        toworld(){
+        /*
+        变换，并应用到世界坐标系mvp
+         */
+        toworld(p,v){
+            if(this.pv==null){
+                this.pv=multiply(create(),p,v);
+            }
             multiply(this.mvp,this.pv, this.mMatrix);
             let uniLocation=this.gl.getUniformLocation(this.program,this.mvp_uniform);
             //将坐标变换矩阵传入uniformLocation，并绘图(第一个模型)
@@ -1091,7 +1103,7 @@ var light3d = (function (exports) {
     class Square {
         /*
          */
-        constructor(a){
+        constructor(a,type=WebGLRenderingContext.LINES){
             this.position=[];
             this.position.push(scale$1([],[1.0,1,0],a));
             this.position.push(scale$1([],[1.0,-1,0],a));
@@ -1104,8 +1116,15 @@ var light3d = (function (exports) {
             this.color.push([0,1,0,1]);
             this.color.push([0,1,0,1]);
 
-            this.index=[[3,2,1],[3,1,0]];
+            switch (type) {
+                case WebGLRenderingContext.POINTS:
+                    this.index=[0,1,2,3];
+                case WebGLRenderingContext.LINES://绘制一系列单独线段。每两个点作为端点，线段之间不连接。
+                    this.index=[[0,1],[2,3]];
+            }
+
         }
+
     }
 
     /*
@@ -1144,6 +1163,22 @@ var light3d = (function (exports) {
         }
     }
 
+    class Triangle {
+        constructor(a){
+                    this.position=[];
+                    this.position.push(scale$1([],[1 ,1,0],a));
+                    this.position.push(scale$1([],[1 ,-1,0],a));
+                    this.position.push(scale$1([],[-1 ,-1,0],a));
+
+                    this.color=[];
+                    this.color.push( [0,1,0,1]);
+                    this.color.push([0,1,0,1]);
+                    this.color.push([0,1,0,1]);
+
+                    this.index=[0,1,2];
+        }
+    }
+
     exports.Color = Color;
     exports.Colors = Colors;
     exports.Lineloop = Lineloop;
@@ -1153,6 +1188,7 @@ var light3d = (function (exports) {
     exports.Singlecolor = Singlecolor;
     exports.Square = Square;
     exports.Torus = Torus;
+    exports.Triangle = Triangle;
     exports.Webgl = Webgl;
     exports.domutil = domutil;
     exports.extend = extend;

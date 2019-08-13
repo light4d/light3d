@@ -71,8 +71,14 @@ class Render extends  Webgl{
        gl.DYNAMIC_DRAW: 缓冲区的内容可能经常被使用，并且经常更改。内容被写入缓冲区，但不被读取。
        gl.STREAM_DRAW: 缓冲区的内容可能不会经常使用。内容被写入缓冲区，但不被读取。
     */
-    data(data2d,target=this.gl.ARRAY_BUFFER,usage= this.gl.STATIC_DRAW){
-        let data1d=[].concat.apply([],data2d);
+    data(data,target=this.gl.ARRAY_BUFFER,usage= this.gl.STATIC_DRAW){
+        let data1d=[]
+        if(typeof data[0].length === "undefined"){
+            data1d=data
+        }else {
+            data1d=[].concat.apply([],data);
+        }
+
         let buffer = this.gl.createBuffer();
         /*
         target=
@@ -99,9 +105,9 @@ class Render extends  Webgl{
         this.gl.drawArrays(drawtype, first, count);
         return this
     }
-    drawElements(drawtype=this.gl.LINE_LOOP,count,type,offset){
+    drawElements(drawtype=this.gl.LINE_LOOP,count,type=this.gl.UNSIGNED_SHORT,offset){
         // void gl.drawElements(mode, count, type, offset);
-        this.gl.drawArrays(drawtype, count, type, offset);
+        this.gl.drawElements(drawtype, count, type, offset);
         return this
     }
 }
