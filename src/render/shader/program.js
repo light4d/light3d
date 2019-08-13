@@ -59,7 +59,13 @@ class Program {
         this.toworld()
     }
 
-    toworld(){
+    /*
+    变换，并应用到世界坐标系mvp
+     */
+    toworld(p,v){
+        if(this.pv==null){
+            this.pv=mat4.multiply(mat4.create(),p,v)
+        }
         mat4.multiply(this.mvp,this.pv, this.mMatrix);
         let uniLocation=this.gl.getUniformLocation(this.program,this.mvp_uniform);
         //将坐标变换矩阵传入uniformLocation，并绘图(第一个模型)
