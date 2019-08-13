@@ -1724,14 +1724,21 @@ var light3d = (function (exports) {
         }
     }
 
+    exports.Color = Color;
     exports.Colors = Colors;
+    exports.LinearToSRGB = LinearToSRGB;
     exports.Lineloop = Lineloop;
     exports.Program = Program;
     exports.Render = Render;
+    exports.SRGBToLinear = SRGBToLinear;
     exports.Shader = Shader;
     exports.Singlecolor = Singlecolor;
     exports.Webgl = Webgl;
+    exports.domutil = domutil;
+    exports.extend = extend;
     exports.glstatus = glstatus;
+    exports.hue2rgb = hue2rgb;
+    exports.strMap2obj = strMap2obj;
 
     return exports;
 
