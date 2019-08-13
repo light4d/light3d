@@ -3,7 +3,7 @@ import {Program} from "../program";
 
 export  class Singlecolor extends Program{
 
-    constructor(gl,gl_FragColor,mvp_uniform="mvp") {
+    constructor(gl,gl_FragColor,mvp_uniform="mvp",pointsize='1.0'){
 
         let v = `attribute vec3 position;`;
         if(mvp_uniform!=null) {
@@ -22,11 +22,16 @@ export  class Singlecolor extends Program{
         let f = `precision mediump float;
         void main(void) {
             gl_FragColor = {{color}};
-        }`;
+            `;
+
+        v += `gl_PointSize = `+pointsize+`;`
+
+        f+=     `}`;
         let color=new Color(gl_FragColor);
 
         f=f.replace("{{color}}", color.getglsl());
         super(gl, v, f,mvp_uniform);
+
         this.gl_Position="position";
         this.precision=" mediump float"
     }
