@@ -149,26 +149,25 @@ var _colorKeywords = {
     'yellowgreen': 0x9ACD32
 };
 
-var _hslA = {h: 0, s: 0, l: 0};
-var _hslB = {h: 0, s: 0, l: 0};
+
 
 export  class Color {
 
     static hsva2rgba(h, s, v, a){
         if(s > 1 || v > 1 || a > 1){return;}
-        var th = h % 360;
-        var i = Math.floor(th / 60);
-        var f = th / 60 - i;
-        var m = v * (1 - s);
-        var n = v * (1 - s * f);
-        var k = v * (1 - s * (1 - f));
-        var color = new Array();
+        let th = h % 360;
+        let i = Math.floor(th / 60);
+        let f = th / 60 - i;
+        let m = v * (1 - s);
+        let n = v * (1 - s * f);
+        let k = v * (1 - s * (1 - f));
+        let color = new Array();
         if(!s > 0 && !s < 0){
             color.push(v, v, v, a);
         } else {
-            var r = new Array(v, n, m, m, k, v);
-            var g = new Array(k, v, v, n, m, m);
-            var b = new Array(m, m, k, v, v, n);
+            let r = new Array(v, n, m, m, k, v);
+            let g = new Array(k, v, v, n, m, m);
+            let b = new Array(m, m, k, v, v, n);
             color.push(r[i], g[i], b[i], a);
         }
         return color;

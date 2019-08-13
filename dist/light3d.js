@@ -958,19 +958,19 @@ var light3d = (function (exports) {
 
         static hsva2rgba(h, s, v, a){
             if(s > 1 || v > 1 || a > 1){return;}
-            var th = h % 360;
-            var i = Math.floor(th / 60);
-            var f = th / 60 - i;
-            var m = v * (1 - s);
-            var n = v * (1 - s * f);
-            var k = v * (1 - s * (1 - f));
-            var color = new Array();
+            let th = h % 360;
+            let i = Math.floor(th / 60);
+            let f = th / 60 - i;
+            let m = v * (1 - s);
+            let n = v * (1 - s * f);
+            let k = v * (1 - s * (1 - f));
+            let color = new Array();
             if(!s > 0 && !s < 0){
                 color.push(v, v, v, a);
             } else {
-                var r = new Array(v, n, m, m, k, v);
-                var g = new Array(k, v, v, n, m, m);
-                var b = new Array(m, m, k, v, v, n);
+                let r = new Array(v, n, m, m, k, v);
+                let g = new Array(k, v, v, n, m, m);
+                let b = new Array(m, m, k, v, v, n);
                 color.push(r[i], g[i], b[i], a);
             }
             return color;
@@ -1103,7 +1103,7 @@ var light3d = (function (exports) {
     class Square {
         /*
          */
-        constructor(a,type=WebGLRenderingContext.LINES){
+        constructor(a){
             this.position=[];
             this.position.push(scale$1([],[1.0,1,0],a));
             this.position.push(scale$1([],[1.0,-1,0],a));
@@ -1115,16 +1115,27 @@ var light3d = (function (exports) {
             this.color.push([0,1,0,1]);
             this.color.push([0,1,0,1]);
             this.color.push([0,1,0,1]);
-
+        }
+        getindex(type=WebGLRenderingContext.LINES){
             switch (type) {
                 case WebGLRenderingContext.POINTS:
                     this.index=[0,1,2,3];
+                    break;
                 case WebGLRenderingContext.LINES://绘制一系列单独线段。每两个点作为端点，线段之间不连接。
                     this.index=[[0,1],[2,3]];
+                    break;
+                case WebGLRenderingContext.LINE_LOOP://绘制一个线圈。即，绘制一系列线段，上一点连接下一点，并且最后一点与第一个点相连。
+                    this.index=[0,1,2,3];
+                    break;
+                case WebGLRenderingContext.LINE_STRIP://绘制一个线条。即，绘制一系列线段，上一点连接下一点。
+                    this.index=[[0,1],[1,2],[2,3]];
+                    break;
+                case WebGLRenderingContext.TRIANGLES://绘制一系列三角形。每三个点作为顶点。
+                    this.index=[[0,1,2],[2,3,0]];
+                    break;
             }
-
+            return this.index;
         }
-
     }
 
     /*
@@ -1136,23 +1147,23 @@ var light3d = (function (exports) {
          */
         constructor(row, column, iradius, oradius){
             let pos = [], col = [], idx = [];
-            for(var i = 0; i <= row; i++){
-                var r = Math.PI * 2 / row * i;
-                var rr = Math.cos(r);
-                var ry = Math.sin(r);
-                for(var ii = 0; ii <= column; ii++){
-                    var tr = Math.PI * 2 / column * ii;
-                    var tx = (rr * iradius + oradius) * Math.cos(tr);
-                    var ty = ry * iradius;
-                    var tz = (rr * iradius + oradius) * Math.sin(tr);
+            for(let i = 0; i <= row; i++){
+                let r = Math.PI * 2 / row * i;
+                let rr = Math.cos(r);
+                let ry = Math.sin(r);
+                for(let ii = 0; ii <= column; ii++){
+                    let tr = Math.PI * 2 / column * ii;
+                    let tx = (rr * iradius + oradius) * Math.cos(tr);
+                    let ty = ry * iradius;
+                    let tz = (rr * iradius + oradius) * Math.sin(tr);
                     pos.push([tx, ty, tz]);
-                    var tc = Color.hsva2rgba(360 / column * ii, 1, 1, 1);
+                    let tc = Color.hsva2rgba(360 / column * ii, 1, 1, 1);
                     col.push([tc[0], tc[1], tc[2], tc[3]]);
                 }
             }
-            for(i = 0; i < row; i++){
-                for(ii = 0; ii < column; ii++){
-                    r = (column + 1) * i + ii;
+            for(let i = 0; i < row; i++){
+                for(let ii = 0; ii < column; ii++){
+                    let r = (column + 1) * i + ii;
                     idx.push([r, r + column + 1, r + 1]);
                     idx.push([r + column + 1, r + column + 2, r + 1]);
                 }
