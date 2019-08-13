@@ -1,0 +1,30 @@
+{
+  "name": "light3d.js",
+  "version": "1.0.0",
+  "description": "light3d.js",
+  "main": "dist/light3d.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup  -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@code.aliyun.com:light4d/light3d.git"
+  },
+  "keywords": [
+    "opengl",
+    "light3d"
+  ],
+  "author": "light4d",
+  "license": "ISC",
+  "devDependencies": {
+    "rollup": "^1.19.4",
+    "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "dependencies": {
+    "gl-matrix": "^3.0.0"
+  }
+}

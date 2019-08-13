@@ -1,0 +1,5 @@
+class Lines {
+    constructor(){
+
+    }
+}
