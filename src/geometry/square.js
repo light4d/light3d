@@ -3,7 +3,7 @@ import {vec3} from "gl-matrix";
 export class Square {
     /*
      */
-    constructor(a){
+    constructor(a,type=WebGLRenderingContext.LINES){
         this.position=[];
         this.position.push(vec3.scale([],[1.0,1,0],a));
         this.position.push(vec3.scale([],[1.0,-1,0],a));
@@ -15,8 +15,9 @@ export class Square {
         this.color.push([0,1,0,1]);
         this.color.push([0,1,0,1]);
         this.color.push([0,1,0,1]);
+        this.getindex(type);
     }
-    getindex(type=WebGLRenderingContext.LINES){
+    getindex(type){
         switch (type) {
             case WebGLRenderingContext.POINTS:
                 this.index=[0,1,2,3];
@@ -34,6 +35,6 @@ export class Square {
                 this.index=[[0,1,2],[2,3,0]];
                 break;
         }
-        return this.index;
+
     }
 }

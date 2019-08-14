@@ -16,17 +16,16 @@ export  class Singlecolor extends Program{
         }else {
             v+=` gl_Position = vec4(position, 1.0);`
         }
+        if(pointsize){
+            v += `gl_PointSize = `+pointsize+`;`
+        }
         v+=`}`;
 
 
         let f = `precision mediump float;
         void main(void) {
             gl_FragColor = {{color}};
-            `;
-
-        v += `gl_PointSize = `+pointsize+`;`
-
-        f+=     `}`;
+            }`;
         let color=new Color(gl_FragColor);
 
         f=f.replace("{{color}}", color.getglsl());

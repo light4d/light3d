@@ -91,7 +91,7 @@ class Render extends  Webgl{
         if(target==this.gl.ARRAY_BUFFER){
             this.gl.bufferData(target, new Float32Array(data1d), usage);
         } if (target==this.gl.ELEMENT_ARRAY_BUFFER) {
-            this.gl.bufferData(target, new Int16Array(data1d), usage);
+            this.gl.bufferData(target, new Uint16Array(data1d), usage);
         }
 
         //取消绑定缓冲区

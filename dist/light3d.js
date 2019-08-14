@@ -787,7 +787,7 @@ var light3d = (function (exports) {
             if(target==this.gl.ARRAY_BUFFER){
                 this.gl.bufferData(target, new Float32Array(data1d), usage);
             } if (target==this.gl.ELEMENT_ARRAY_BUFFER) {
-                this.gl.bufferData(target, new Int16Array(data1d), usage);
+                this.gl.bufferData(target, new Uint16Array(data1d), usage);
             }
 
             //取消绑定缓冲区
@@ -1041,17 +1041,16 @@ var light3d = (function (exports) {
             }else {
                 v+=` gl_Position = vec4(position, 1.0);`;
             }
+            if(pointsize){
+                v += `gl_PointSize = `+pointsize+`;`;
+            }
             v+=`}`;
 
 
             let f = `precision mediump float;
         void main(void) {
             gl_FragColor = {{color}};
-            `;
-
-            v += `gl_PointSize = `+pointsize+`;`;
-
-            f+=     `}`;
+            }`;
             let color=new Color(gl_FragColor);
 
             f=f.replace("{{color}}", color.getglsl());
@@ -1113,7 +1112,7 @@ var light3d = (function (exports) {
     class Square {
         /*
          */
-        constructor(a){
+        constructor(a,type=WebGLRenderingContext.LINES){
             this.position=[];
             this.position.push(scale$1([],[1.0,1,0],a));
             this.position.push(scale$1([],[1.0,-1,0],a));
@@ -1125,8 +1124,9 @@ var light3d = (function (exports) {
             this.color.push([0,1,0,1]);
             this.color.push([0,1,0,1]);
             this.color.push([0,1,0,1]);
+            this.getindex(type);
         }
-        getindex(type=WebGLRenderingContext.LINES){
+        getindex(type){
             switch (type) {
                 case WebGLRenderingContext.POINTS:
                     this.index=[0,1,2,3];
@@ -1144,7 +1144,7 @@ var light3d = (function (exports) {
                     this.index=[[0,1,2],[2,3,0]];
                     break;
             }
-            return this.index;
+
         }
     }
 
