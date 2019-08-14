@@ -102,6 +102,7 @@ class Render extends  Webgl{
 
     drawArrays(drawtype=this.gl.LINE_LOOP,count,first=0){
         //void gl.drawArrays(mode, first, count);
+        // count 顶点的数量。
         this.gl.drawArrays(drawtype, first, count);
         return this
     }
