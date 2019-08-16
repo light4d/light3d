@@ -1,8 +1,9 @@
 {
-  "name": "light3d.js",
+  "name": "light3d",
   "version": "1.0.0",
   "description": "light3d.js",
-  "main": "dist/light3d.js",
+  "main": "light3d.js",
+  "author": "light4d",
   "directories": {
     "test": "test"
   },

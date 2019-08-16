@@ -85,7 +85,8 @@ class Program {
         void gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
 
         index=attributeLocation
-        size=count
+        size=A GLint specifying the number of components per vertex attribute. Must be 1, 2, 3, or 4.指定每个顶点属性的组成数量，必须是1，2，3或4。
+        type =gl.float
         stride=offset beginning
         offset=offset length
         */

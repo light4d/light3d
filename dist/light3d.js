@@ -946,7 +946,8 @@ var light3d = (function (exports) {
             void gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
 
             index=attributeLocation
-            size=count
+            size=A GLint specifying the number of components per vertex attribute. Must be 1, 2, 3, or 4.指定每个顶点属性的组成数量，必须是1，2，3或4。
+            type =gl.float
             stride=offset beginning
             offset=offset length
             */
@@ -1100,6 +1101,51 @@ var light3d = (function (exports) {
         }
     }
 
+    class Texture extends Program{
+        constructor(gl,mvp_uniform="mvp",pointsize='1.0'){
+
+            let v = `attribute vec3 position;
+                attribute vec4 color;
+                attribute vec2 textureCoord;
+                varying   vec2 vTextureCoord;`;
+            if(mvp_uniform!=null) {
+                v += ` uniform mat4  ` + mvp_uniform + `;`;
+            }
+            v+= `void main(void) {
+             vColor = color;
+             vTextureCoord = textureCoord;
+        `;
+
+            if(mvp_uniform!=null){
+                v+=` gl_Position = ` +mvp_uniform+`* vec4(position, 1.0);`;
+            }else {
+                v+=` gl_Position = vec4(position, 1.0);`;
+            }
+            if(pointsize){
+                v += `gl_PointSize = `+pointsize+`;`;
+            }
+            v+=`}`;
+
+
+            let f = `precision mediump float;
+        uniform sampler2D texture;
+        varying vec2      vTextureCoord;
+        
+        void main(void) {
+            vec4 smpColor = texture2D(texture, vTextureCoord);
+            gl_FragColor  = vColor * smpColor;
+        }`;
+            let color=new Color(gl_FragColor);
+
+            f=f.replace("{{color}}", color.getglsl());
+            super(gl, v, f,mvp_uniform);
+
+            this.position="position";
+            this.textureCoord="textureCoord";
+            this.precision=" mediump float";
+        }
+    }
+
     /*
     绘制一个线圈。即，绘制一系列线段，上一点连接下一点，并且最后一点与第一个点相连。
      */
@@ -1109,43 +1155,61 @@ var light3d = (function (exports) {
 
     }
 
+    function SplitLINES(points) {
+        let lines=[];
+        for(let i=0;i<points.length-1;i++){
+            lines.push(points[i]);
+            lines.push(points[i+1]);
+        }
+        return lines;
+    }
+
+    function SplitTRIANGLES(points) {
+        let lines=[];
+        for(let i=0;i<points.length-1;i++){
+            lines.push(points[0]);
+            lines.push(points[i]);
+            lines.push(points[i+1]);
+        }
+        return lines;
+    }
+
     class Square {
         /*
          */
-        constructor(a,type=WebGLRenderingContext.LINES){
-            this.position=[];
-            this.position.push(scale$1([],[1.0,1,0],a));
-            this.position.push(scale$1([],[1.0,-1,0],a));
-            this.position.push(scale$1([],[-1.0,-1,0],a));
-            this.position.push(scale$1([],[-1.0,1,0],a));
+        constructor(a,draw="Arrays",type=WebGLRenderingContext.LINES){
+            this.position=[];this.color=[];
+            if(draw=="Arrays"){
+                switch (type) {
+                    case WebGLRenderingContext.POINTS://绘制一系列点。
+                        this.position.push(scale$1([],[1.0,1,0],a));
+                        this.position.push(scale$1([],[1.0,-1,0],a));
+                        this.position.push(scale$1([],[-1.0,-1,0],a));
+                        this.position.push(scale$1([],[-1.0,1,0],a));
+                        break;
+                    case WebGLRenderingContext.LINES://绘制一系列单独线段。每两个点作为端点，线段之间不连接。
+                        this.index=[[0,1],[1,2],[2,3],[3,0]];
+                        break;
+                    case WebGLRenderingContext.LINE_LOOP://绘制一个线圈。即，绘制一系列线段，上一点连接下一点，并且最后一点与第一个点相连。
+                        this.index=[0,1,2,3];
+                        break;
+                    case WebGLRenderingContext.LINE_STRIP://绘制一个线条。即，绘制一系列线段，上一点连接下一点。
+                        this.index=[[0,1],[1,2],[2,3]];
+                        break;
+                    case WebGLRenderingContext.TRIANGLES://绘制一系列三角形。每三个点作为顶点。
+                        this.index=[[0,1,2],[2,3,0]];
+                        break;
+                }
 
-            this.color=[];
-            this.color.push( [0,1,0,1]);
-            this.color.push([0,1,0,1]);
-            this.color.push([0,1,0,1]);
-            this.color.push([0,1,0,1]);
-            this.getindex(type);
-        }
-        getindex(type){
-            switch (type) {
-                case WebGLRenderingContext.POINTS:
-                    this.index=[0,1,2,3];
-                    break;
-                case WebGLRenderingContext.LINES://绘制一系列单独线段。每两个点作为端点，线段之间不连接。
-                    this.index=[[0,1],[2,3]];
-                    break;
-                case WebGLRenderingContext.LINE_LOOP://绘制一个线圈。即，绘制一系列线段，上一点连接下一点，并且最后一点与第一个点相连。
-                    this.index=[0,1,2,3];
-                    break;
-                case WebGLRenderingContext.LINE_STRIP://绘制一个线条。即，绘制一系列线段，上一点连接下一点。
-                    this.index=[[0,1],[1,2],[2,3]];
-                    break;
-                case WebGLRenderingContext.TRIANGLES://绘制一系列三角形。每三个点作为顶点。
-                    this.index=[[0,1,2],[2,3,0]];
-                    break;
+            }else if (draw=="Elements"){
+                this.position.push(scale$1([],[1.0,1,0],a));
+                this.position.push(scale$1([],[1.0,-1,0],a));
+                this.position.push(scale$1([],[-1.0,-1,0],a));
+                this.position.push(scale$1([],[-1.0,1,0],a));
+                this.setindex(type);
             }
-
         }
+
     }
 
     /*
@@ -1200,14 +1264,59 @@ var light3d = (function (exports) {
         }
     }
 
+    class Polygon {
+        /*
+         */
+        static points(sides=3,radius){
+            let pos=[];
+            let radalpha=Math.PI*2/sides;
+            for (let i=0;i<sides;i++){
+                let x=radius*Math.cos(i*radalpha);
+                let y=radius*Math.sin(i*radalpha);
+                pos.push( [x,y,0]);
+            }
+            return pos;
+        }
+        constructor(sides=3,radius=1,draw="Arrays",type=WebGLRenderingContext.LINES){
+            this.position=[];this.color=[];
+            if(draw=="Arrays"){
+                switch (type) {
+                    case WebGLRenderingContext.POINTS://绘制一系列点。
+                    case WebGLRenderingContext.LINE_STRIP://绘制一个线条。即，绘制一系列线段，上一点连接下一点。
+                    case WebGLRenderingContext.LINE_LOOP: //绘制一个线圈。即，绘制一系列线段，上一点连接下一点，并且最后一点与第一个点相连。
+                        this.position=Polygon.points(sides,radius);
+                        break;
+                    case WebGLRenderingContext.LINES://绘制一系列单独线段。每两个点作为端点，线段之间不连接。
+                        this.position=SplitLINES(Polygon.points(sides,radius));
+                        break;
+                    case WebGLRenderingContext.TRIANGLES://绘制一系列三角形。每三个点作为顶点。
+                        this.position=SplitTRIANGLES(Polygon.points(sides,radius));
+                        break;
+                }
+
+            }else if (draw=="Elements"){
+                this.position.push(scale$1([],[1.0,1,0],a));
+                this.position.push(scale$1([],[1.0,-1,0],a));
+                this.position.push(scale$1([],[-1.0,-1,0],a));
+                this.position.push(scale$1([],[-1.0,1,0],a));
+                this.setindex(type);
+            }
+        }
+
+    }
+
     exports.Color = Color;
     exports.Colors = Colors;
     exports.Lineloop = Lineloop;
+    exports.Polygon = Polygon;
     exports.Program = Program;
     exports.Render = Render;
     exports.Shader = Shader;
     exports.Singlecolor = Singlecolor;
+    exports.SplitLINES = SplitLINES;
+    exports.SplitTRIANGLES = SplitTRIANGLES;
     exports.Square = Square;
+    exports.Texture = Texture;
     exports.Torus = Torus;
     exports.Triangle = Triangle;
     exports.Webgl = Webgl;
