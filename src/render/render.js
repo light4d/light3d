@@ -99,7 +99,11 @@ class Render extends  Webgl{
         return buffer;
     }
 
+    updatedata(target=this.gl.ARRAY_BUFFER,buffer,array1d){
+        this.gl.bindBuffer(target, buffer);
+        this.gl.bufferData(target, new Float32Array(array1d), WebGLRenderingContext.DYNAMIC_DRAW);
 
+    }
     drawArrays(drawtype=this.gl.LINE_LOOP,count,first=0){
         //void gl.drawArrays(mode, first, count);
         // count 顶点的数量。
