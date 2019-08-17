@@ -1,7 +1,7 @@
 import {Webgl} from "./webgl";
 import {mat4} from "gl-matrix";
 
-class Render extends  Webgl{
+class World extends  Webgl{
 
     constructor( canvas,container = document.body){
         super( canvas,container);
@@ -117,4 +117,4 @@ class Render extends  Webgl{
     }
 }
 
-export {Render};
+export {World};

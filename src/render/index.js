@@ -1,4 +1,4 @@
-export {Render} from "./render.js"
+export {World} from "./world.js"
 export {Webgl} from "./webgl.js"
 export {glstatus} from "./glstatus.js"
 export   *  from   "./shader/index.js";
