@@ -697,7 +697,7 @@ var light3d = (function (exports) {
       };
     }();
 
-    class Render extends  Webgl{
+    class World extends  Webgl{
 
         constructor( canvas,container = document.body){
             super( canvas,container);
@@ -795,7 +795,11 @@ var light3d = (function (exports) {
             return buffer;
         }
 
+        updatedata(target=this.gl.ARRAY_BUFFER,buffer,array1d){
+            this.gl.bindBuffer(target, buffer);
+            this.gl.bufferData(target, new Float32Array(array1d), WebGLRenderingContext.DYNAMIC_DRAW);
 
+        }
         drawArrays(drawtype=this.gl.LINE_LOOP,count,first=0){
             //void gl.drawArrays(mode, first, count);
             // count 顶点的数量。
@@ -1163,7 +1167,9 @@ var light3d = (function (exports) {
         }
         return lines;
     }
+    /*
 
+     */
     function SplitTRIANGLES(points) {
         let lines=[];
         for(let i=0;i<points.length-1;i++){
@@ -1310,7 +1316,6 @@ var light3d = (function (exports) {
     exports.Lineloop = Lineloop;
     exports.Polygon = Polygon;
     exports.Program = Program;
-    exports.Render = Render;
     exports.Shader = Shader;
     exports.Singlecolor = Singlecolor;
     exports.SplitLINES = SplitLINES;
@@ -1320,6 +1325,7 @@ var light3d = (function (exports) {
     exports.Torus = Torus;
     exports.Triangle = Triangle;
     exports.Webgl = Webgl;
+    exports.World = World;
     exports.domutil = domutil;
     exports.extend = extend;
     exports.glstatus = glstatus;
