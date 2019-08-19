@@ -93,7 +93,7 @@ class World extends  Webgl{
         } if (target==this.gl.ELEMENT_ARRAY_BUFFER) {
             this.gl.bufferData(target, new Uint16Array(data1d), usage);
         }
-
+        data1d=null;
         //取消绑定缓冲区
         this.gl.bindBuffer(target, null);
         return buffer;

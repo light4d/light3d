@@ -789,7 +789,7 @@ var light3d = (function (exports) {
             } if (target==this.gl.ELEMENT_ARRAY_BUFFER) {
                 this.gl.bufferData(target, new Uint16Array(data1d), usage);
             }
-
+            data1d=null;
             //取消绑定缓冲区
             this.gl.bindBuffer(target, null);
             return buffer;
@@ -819,8 +819,8 @@ var light3d = (function (exports) {
             this.status=new Map();
         }
         checkgl() {
-            let capsmap=new Map();
-            let caps = new Map([
+            const capsmap=new Map();
+            const caps = new Map([
                 [ this.gl.BLEND,'BLEND'],
                 [ this.gl.CULL_FACE,'CULL_FACE'],
                 [  this.gl.DEPTH_TEST,'DEPTH_TEST'],
@@ -852,12 +852,12 @@ var light3d = (function (exports) {
                 throw new Error("need webgl context");
             }
 
-            var SHADERTYPE=[gl.VERTEX_SHADER,gl.FRAGMENT_SHADER];
+            const SHADERTYPE=[gl.VERTEX_SHADER,gl.FRAGMENT_SHADER];
             if(!SHADERTYPE.includes(type)){
                 throw new Error("SHADER TYPE no such type"+type+" only "+SHADERTYPE);
             }
 
-            let shader = gl.createShader(type);
+            const shader = gl.createShader(type);
             gl.shaderSource(shader,glsl);
             gl.compileShader(shader);
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -932,7 +932,7 @@ var light3d = (function (exports) {
                 this.pv=multiply(create(),p,v);
             }
             multiply(this.mvp,this.pv, this.mMatrix);
-            let uniLocation=this.gl.getUniformLocation(this.program,this.mvp_uniform);
+            const uniLocation=this.gl.getUniformLocation(this.program,this.mvp_uniform);
             //将坐标变换矩阵传入uniformLocation，并绘图(第一个模型)
             if(uniLocation==null){
                 throw new Error("uniform location not found"+this.mvp_uniform);
@@ -942,7 +942,7 @@ var light3d = (function (exports) {
         setattr(target=this.gl.ARRAY_BUFFER,buffer,attribname,vertexAttribPointer_size,type=this.gl.FLOAT,stride=0,offset=0){
 
             this.gl.bindBuffer(target, buffer);
-            let attribLocation=this.gl.getAttribLocation(this.program , attribname);
+            const attribLocation=this.gl.getAttribLocation(this.program , attribname);
             // 将attributeLocation设置为有效
             this.gl.enableVertexAttribArray(attribLocation);
 
@@ -1150,6 +1150,56 @@ var light3d = (function (exports) {
         }
     }
 
+    class ComputeColor extends Program{
+        constructor(gl,mvp_uniform="mvp",pointsize='1.0') {
+            // let v = fs.readFileSync(  programname+'.v.glsl', 'utf8');
+            // let f= fs.readFileSync(  programname+'.f.glsl', 'utf8');
+
+            super(gl, v, f,mvp_uniform);
+            this.gl_Position="position";
+            this.gl_FragColor="color";
+            this.precision=" mediump float";
+        }
+    }
+
+    class Colorz extends Program{
+
+        constructor(gl,mvp_uniform="mvp",pointsize='1.0'){
+
+            let v = `
+        attribute vec3 position;
+        varying vec4 vColor;
+        `;
+            if(mvp_uniform!=null) {
+                v += ` uniform mat4  ` + mvp_uniform + `;`;
+            }
+            v+= `void main(void) {`;
+
+            if(mvp_uniform!=null){
+                v+=` gl_Position = ` +mvp_uniform+`* vec4(position, 1.0);`;
+            }else {
+                v+=` gl_Position = vec4(position, 1.0);`;
+            }
+            if(pointsize){
+                v += `gl_PointSize = `+pointsize+`;`;
+            }
+            v+=`
+        vColor= vec4(abs(position[0]),abs(position[1]),abs(position[2]),1.0);
+        }`;
+
+
+            let f = `precision mediump float;
+         varying vec4 vColor;
+        void main(void) {
+            gl_FragColor = vColor;
+            }`;
+            super(gl, v, f,mvp_uniform);
+
+            this.gl_Position="position";
+            this.precision=" mediump float";
+        }
+    }
+
     /*
     绘制一个线圈。即，绘制一系列线段，上一点连接下一点，并且最后一点与第一个点相连。
      */
@@ -1160,7 +1210,7 @@ var light3d = (function (exports) {
     }
 
     function SplitLINES(points) {
-        let lines=[];
+        const lines=[];
         for(let i=0;i<points.length-1;i++){
             lines.push(points[i]);
             lines.push(points[i+1]);
@@ -1171,7 +1221,7 @@ var light3d = (function (exports) {
 
      */
     function SplitTRIANGLES(points) {
-        let lines=[];
+        const lines=[];
         for(let i=0;i<points.length-1;i++){
             lines.push(points[0]);
             lines.push(points[i]);
@@ -1226,7 +1276,7 @@ var light3d = (function (exports) {
         /*
          */
         constructor(row, column, iradius, oradius){
-            let pos = [], col = [], idx = [];
+            const pos = [], col = [], idx = [];
             for(let i = 0; i <= row; i++){
                 let r = Math.PI * 2 / row * i;
                 let rr = Math.cos(r);
@@ -1274,7 +1324,7 @@ var light3d = (function (exports) {
         /*
          */
         static points(sides=3,radius){
-            let pos=[];
+            const pos=[];
             let radalpha=Math.PI*2/sides;
             for (let i=0;i<sides;i++){
                 let x=radius*Math.cos(i*radalpha);
@@ -1313,6 +1363,8 @@ var light3d = (function (exports) {
 
     exports.Color = Color;
     exports.Colors = Colors;
+    exports.Colorz = Colorz;
+    exports.ComputeColor = ComputeColor;
     exports.Lineloop = Lineloop;
     exports.Polygon = Polygon;
     exports.Program = Program;

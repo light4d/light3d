@@ -4,7 +4,7 @@ export class Polygon {
     /*
      */
     static points(sides=3,radius){
-        let pos=[]
+        const pos=[]
         let radalpha=Math.PI*2/sides
         for (let i=0;i<sides;i++){
             let x=radius*Math.cos(i*radalpha)

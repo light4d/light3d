@@ -67,7 +67,7 @@ class Program {
             this.pv=mat4.multiply(mat4.create(),p,v)
         }
         mat4.multiply(this.mvp,this.pv, this.mMatrix);
-        let uniLocation=this.gl.getUniformLocation(this.program,this.mvp_uniform);
+        const uniLocation=this.gl.getUniformLocation(this.program,this.mvp_uniform);
         //将坐标变换矩阵传入uniformLocation，并绘图(第一个模型)
         if(uniLocation==null){
             throw new Error("uniform location not found"+this.mvp_uniform);
@@ -77,7 +77,7 @@ class Program {
     setattr(target=this.gl.ARRAY_BUFFER,buffer,attribname,vertexAttribPointer_size,type=this.gl.FLOAT,stride=0,offset=0){
 
         this.gl.bindBuffer(target, buffer);
-        let attribLocation=this.gl.getAttribLocation(this.program , attribname);
+        const attribLocation=this.gl.getAttribLocation(this.program , attribname);
         // 将attributeLocation设置为有效
         this.gl.enableVertexAttribArray(attribLocation);
 

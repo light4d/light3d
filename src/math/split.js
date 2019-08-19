@@ -1,5 +1,5 @@
 export function SplitLINES(points) {
-    let lines=[]
+    const lines=[]
     for(let i=0;i<points.length-1;i++){
         lines.push(points[i]);
         lines.push(points[i+1]);
@@ -10,7 +10,7 @@ export function SplitLINES(points) {
 
  */
 export function SplitTRIANGLES(points) {
-    let lines=[]
+    const lines=[]
     for(let i=0;i<points.length-1;i++){
         lines.push(points[0]);
         lines.push(points[i]);

@@ -7,7 +7,7 @@ export class Torus {
     /*
      */
     constructor(row, column, iradius, oradius){
-        let pos = [], col = [], idx = [];
+        const pos = [], col = [], idx = [];
         for(let i = 0; i <= row; i++){
             let r = Math.PI * 2 / row * i;
             let rr = Math.cos(r);

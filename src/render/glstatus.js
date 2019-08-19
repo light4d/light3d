@@ -6,8 +6,8 @@ class glstatus {
         this.status=new Map()
     }
     checkgl() {
-        let capsmap=new Map();
-        let caps = new Map([
+        const capsmap=new Map();
+        const caps = new Map([
             [ this.gl.BLEND,'BLEND'],
             [ this.gl.CULL_FACE,'CULL_FACE'],
             [  this.gl.DEPTH_TEST,'DEPTH_TEST'],

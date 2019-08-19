@@ -5,12 +5,12 @@ function Shader(gl,type,glsl ){
             throw new Error("need webgl context");
         }
 
-        var SHADERTYPE=[gl.VERTEX_SHADER,gl.FRAGMENT_SHADER];
+        const SHADERTYPE=[gl.VERTEX_SHADER,gl.FRAGMENT_SHADER];
         if(!SHADERTYPE.includes(type)){
             throw new Error("SHADER TYPE no such type"+type+" only "+SHADERTYPE);
         }
 
-        let shader = gl.createShader(type);
+        const shader = gl.createShader(type);
         gl.shaderSource(shader,glsl);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
