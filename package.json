@@ -19,7 +19,6 @@
     "opengl",
     "light3d"
   ],
-  "author": "light4d",
   "license": "ISC",
   "devDependencies": {
     "rollup": "^1.19.4",

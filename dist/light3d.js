@@ -198,7 +198,16 @@ var light3d = (function (exports) {
     // Configuration Constants
     var EPSILON = 0.000001;
     var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
-    var degree = Math.PI / 180;
+    if (!Math.hypot) Math.hypot = function () {
+      var y = 0,
+          i = arguments.length;
+
+      while (i--) {
+        y += arguments[i] * arguments[i];
+      }
+
+      return Math.sqrt(y);
+    };
 
     /**
      * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
@@ -422,7 +431,7 @@ var light3d = (function (exports) {
       var x = axis[0],
           y = axis[1],
           z = axis[2];
-      var len = Math.sqrt(x * x + y * y + z * z);
+      var len = Math.hypot(x, y, z);
       var s, c, t;
       var a00, a01, a02, a03;
       var a10, a11, a12, a13;
@@ -559,14 +568,14 @@ var light3d = (function (exports) {
       z0 = eyex - centerx;
       z1 = eyey - centery;
       z2 = eyez - centerz;
-      len = 1 / Math.sqrt(z0 * z0 + z1 * z1 + z2 * z2);
+      len = 1 / Math.hypot(z0, z1, z2);
       z0 *= len;
       z1 *= len;
       z2 *= len;
       x0 = upy * z2 - upz * z1;
       x1 = upz * z0 - upx * z2;
       x2 = upx * z1 - upy * z0;
-      len = Math.sqrt(x0 * x0 + x1 * x1 + x2 * x2);
+      len = Math.hypot(x0, x1, x2);
 
       if (!len) {
         x0 = 0;
@@ -582,7 +591,7 @@ var light3d = (function (exports) {
       y0 = z1 * x2 - z2 * x1;
       y1 = z2 * x0 - z0 * x2;
       y2 = z0 * x1 - z1 * x0;
-      len = Math.sqrt(y0 * y0 + y1 * y1 + y2 * y2);
+      len = Math.hypot(y0, y1, y2);
 
       if (!len) {
         y0 = 0;
@@ -613,89 +622,6 @@ var light3d = (function (exports) {
       out[15] = 1;
       return out;
     }
-
-    /**
-     * 3 Dimensional Vector
-     * @module vec3
-     */
-
-    /**
-     * Creates a new, empty vec3
-     *
-     * @returns {vec3} a new 3D vector
-     */
-
-    function create$1() {
-      var out = new ARRAY_TYPE(3);
-
-      if (ARRAY_TYPE != Float32Array) {
-        out[0] = 0;
-        out[1] = 0;
-        out[2] = 0;
-      }
-
-      return out;
-    }
-    /**
-     * Scales a vec3 by a scalar number
-     *
-     * @param {vec3} out the receiving vector
-     * @param {vec3} a the vector to scale
-     * @param {Number} b amount to scale the vector by
-     * @returns {vec3} out
-     */
-
-    function scale$1(out, a, b) {
-      out[0] = a[0] * b;
-      out[1] = a[1] * b;
-      out[2] = a[2] * b;
-      return out;
-    }
-    /**
-     * Perform some operation over an array of vec3s.
-     *
-     * @param {Array} a the array of vectors to iterate over
-     * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
-     * @param {Number} offset Number of elements to skip at the beginning of the array
-     * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
-     * @param {Function} fn Function to call for each vector in the array
-     * @param {Object} [arg] additional argument to pass to fn
-     * @returns {Array} a
-     * @function
-     */
-
-    var forEach = function () {
-      var vec = create$1();
-      return function (a, stride, offset, count, fn, arg) {
-        var i, l;
-
-        if (!stride) {
-          stride = 3;
-        }
-
-        if (!offset) {
-          offset = 0;
-        }
-
-        if (count) {
-          l = Math.min(count * stride + offset, a.length);
-        } else {
-          l = a.length;
-        }
-
-        for (i = offset; i < l; i += stride) {
-          vec[0] = a[i];
-          vec[1] = a[i + 1];
-          vec[2] = a[i + 2];
-          fn(vec, vec, arg);
-          a[i] = vec[0];
-          a[i + 1] = vec[1];
-          a[i + 2] = vec[2];
-        }
-
-        return a;
-      };
-    }();
 
     class World extends  Webgl{
 
@@ -1230,42 +1156,47 @@ var light3d = (function (exports) {
         return lines;
     }
 
-    class Square {
-        /*
-         */
-        constructor(a,draw="Arrays",type=WebGLRenderingContext.LINES){
-            this.position=[];this.color=[];
-            if(draw=="Arrays"){
-                switch (type) {
-                    case WebGLRenderingContext.POINTS://绘制一系列点。
-                        this.position.push(scale$1([],[1.0,1,0],a));
-                        this.position.push(scale$1([],[1.0,-1,0],a));
-                        this.position.push(scale$1([],[-1.0,-1,0],a));
-                        this.position.push(scale$1([],[-1.0,1,0],a));
-                        break;
-                    case WebGLRenderingContext.LINES://绘制一系列单独线段。每两个点作为端点，线段之间不连接。
-                        this.index=[[0,1],[1,2],[2,3],[3,0]];
-                        break;
-                    case WebGLRenderingContext.LINE_LOOP://绘制一个线圈。即，绘制一系列线段，上一点连接下一点，并且最后一点与第一个点相连。
-                        this.index=[0,1,2,3];
-                        break;
-                    case WebGLRenderingContext.LINE_STRIP://绘制一个线条。即，绘制一系列线段，上一点连接下一点。
-                        this.index=[[0,1],[1,2],[2,3]];
-                        break;
-                    case WebGLRenderingContext.TRIANGLES://绘制一系列三角形。每三个点作为顶点。
-                        this.index=[[0,1,2],[2,3,0]];
-                        break;
-                }
-
-            }else if (draw=="Elements"){
-                this.position.push(scale$1([],[1.0,1,0],a));
-                this.position.push(scale$1([],[1.0,-1,0],a));
-                this.position.push(scale$1([],[-1.0,-1,0],a));
-                this.position.push(scale$1([],[-1.0,1,0],a));
-                this.setindex(type);
-            }
+    function MakeIndexArray(to,from=0) {
+        const indexs=[];
+        for(let i=from;i<=to;i++){
+            indexs.push(i);
         }
+        return indexs;
+    }
 
+    function MakePolygonLINE_STRIPIndexArray(polygonpointlen) {
+        const indexs=[];
+        for(let i=0;i<polygonpointlen-1;i++){
+            indexs.push(i);
+            indexs.push(i+1);
+        }
+        return indexs;
+    }
+
+    function MakePolygonLINE_LOOPIndexArray(polygonpointlen) {
+        const indexs=[];
+        for(let i=0;i<polygonpointlen-1;i++){
+            indexs.push(i);
+            indexs.push(i+1);
+        }
+        indexs.push(polygonpointlen-1);
+        indexs.push(0);
+        return indexs;
+    }
+    /*
+    正多边形的三角形生成算法
+    */
+    function MakePolygonTRIANGLESIndexArray(polygonpointlen) {
+        const indexs=[];
+        if(polygonpointlen<3){
+            throw "polygonpointlen must >=3"
+        }
+        for(let i=1;i<polygonpointlen-1;i++){
+            indexs.push(0);
+            indexs.push(i);
+            indexs.push(i+1);
+        }    
+        return indexs;
     }
 
     /*
@@ -1304,26 +1235,10 @@ var light3d = (function (exports) {
         }
     }
 
-    class Triangle {
-        constructor(a){
-                    this.position=[];
-                    this.position.push(scale$1([],[1 ,1,0],a));
-                    this.position.push(scale$1([],[1 ,-1,0],a));
-                    this.position.push(scale$1([],[-1 ,-1,0],a));
-
-                    this.color=[];
-                    this.color.push( [0,1,0,1]);
-                    this.color.push([0,1,0,1]);
-                    this.color.push([0,1,0,1]);
-
-                    this.index=[0,1,2];
-        }
-    }
-
     class Polygon {
         /*
          */
-        static points(sides=3,radius){
+        static points(sides=3,radius=1){
             const pos=[];
             let radalpha=Math.PI*2/sides;
             for (let i=0;i<sides;i++){
@@ -1351,11 +1266,25 @@ var light3d = (function (exports) {
                 }
 
             }else if (draw=="Elements"){
-                this.position.push(scale$1([],[1.0,1,0],a));
-                this.position.push(scale$1([],[1.0,-1,0],a));
-                this.position.push(scale$1([],[-1.0,-1,0],a));
-                this.position.push(scale$1([],[-1.0,1,0],a));
-                this.setindex(type);
+                this.position=Polygon.points(sides,radius);
+                this.index=[];
+                switch (type) {
+                    case WebGLRenderingContext.POINTS://绘制一系列点。
+                        this.index=MakeIndexArray(this.position.length-1,0);
+                        break;
+                    case WebGLRenderingContext.LINE_STRIP://绘制一个线条。即，绘制一系列线段，上一点连接下一点。
+                        this.index=MakePolygonLINE_STRIPIndexArray(this.position.length);
+                        break;
+                    case WebGLRenderingContext.LINE_LOOP: //绘制一个线圈。即，绘制一系列线段，上一点连接下一点，并且最后一点与第一个点相连。
+                        this.index=MakePolygonLINE_LOOPIndexArray(this.position.length);
+                        break;
+                    case WebGLRenderingContext.LINES://绘制一系列单独线段。每两个点作为端点，线段之间不连接。
+                        this.index=MakeIndexArray(this.position.length-1,0);
+                        break;
+                    case WebGLRenderingContext.TRIANGLES://绘制一系列三角形。每三个点作为顶点。
+                        this.index=MakePolygonTRIANGLESIndexArray(this.position.length);
+                        break;
+                }
             }
         }
 
@@ -1366,16 +1295,18 @@ var light3d = (function (exports) {
     exports.Colorz = Colorz;
     exports.ComputeColor = ComputeColor;
     exports.Lineloop = Lineloop;
+    exports.MakeIndexArray = MakeIndexArray;
+    exports.MakePolygonLINE_LOOPIndexArray = MakePolygonLINE_LOOPIndexArray;
+    exports.MakePolygonLINE_STRIPIndexArray = MakePolygonLINE_STRIPIndexArray;
+    exports.MakePolygonTRIANGLESIndexArray = MakePolygonTRIANGLESIndexArray;
     exports.Polygon = Polygon;
     exports.Program = Program;
     exports.Shader = Shader;
     exports.Singlecolor = Singlecolor;
     exports.SplitLINES = SplitLINES;
     exports.SplitTRIANGLES = SplitTRIANGLES;
-    exports.Square = Square;
     exports.Texture = Texture;
     exports.Torus = Torus;
-    exports.Triangle = Triangle;
     exports.Webgl = Webgl;
     exports.World = World;
     exports.domutil = domutil;
