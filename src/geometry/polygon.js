@@ -5,6 +5,7 @@ import {MakePolygonLINE_STRIPIndexArray,MakePolygonLINE_LOOPIndexArray,MakePolyg
 export class Polygon {
     /*
      */
+
     static points(sides=3,radius=1){
         const pos=[]
         let radalpha=Math.PI*2/sides
@@ -14,6 +15,19 @@ export class Polygon {
             pos.push( [x,y,0]);
         }
         return pos;
+    }
+    static newpoints(sides=3,radius=1){
+        return new Polygon(sides,radius,draw="Arrays",type=WebGLRenderingContext.POINTS)
+    }
+    static newlines(sides=3,radius=1){
+        return new Polygon(sides,radius,draw="Arrays",type=WebGLRenderingContext.LINES)
+    }
+    
+    static newlinestrip(sides=3,radius=1){
+        return new Polygon(sides,radius,draw="Elements",type=WebGLRenderingContext.LINE_STRIP)
+    }
+    static newlineloop(sides=3,radius=1){
+        return new Polygon(sides,radius,draw="Elements",type=WebGLRenderingContext.LINE_LOOP)
     }
     constructor(sides=3,radius=1,draw="Arrays",type=WebGLRenderingContext.LINES){
         this.position=[];this.color=[];
